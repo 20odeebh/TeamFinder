@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.multi.teamfinder.dao.MateMapper">
+	<resultMap type="kr.co.multi.teamfinder.dto.Post" id="post_resultMap">
+		<result column="post_id" property="post_id"/>
+		<result column="title" property="title"/>
+		<result column="user_index" property="user_index"/>
+		<result column="context" property="context"/>
+		<result column="project_period" property="project_period"/>
+		<result column="region" property="region"/>
+		<result column="meeting_method" property="meeting_method"/>
+		<result column="recruiting_number" property="recruiting_number"/>
+		<result column="team_image" property="team_image"/>
+		<result column="project_stack" property="project_stack"/>
+		<result column="upload_time" property="upload_time"/>
+		<result column="board_type" property="board_type"/>
+		
+		<association javaType="kr.co.multi.teamfinder.dto.User" property="user">
+			<id column="user_index" property="user_index"/>
+			<result column="user_id" property="user_id"/>
+		</association>
+	</resultMap>
+	
+	<select id="getMatePosts" resultMap="post_resultMap">
+		select b.post_id, b.user_index, b.title,b. region, b.meeting_method, b.project_stack, b.project_period, u.user_id from users u, board b where u.user_index = b.user_index and b.board_type = 0 order by b.post_id desc
+	</select>
+	
+	<insert id="addMatePost" parameterType="kr.co.multi.teamfinder.dto.Post">
+		insert into board values((select to_number(nvl(max(post_id), '0')+1) from board), #{title}, #{user_index}, #{context}, #{project_period}, #{region}, #{meeting_method}, #{recruiting_number}, #{team_image}, #{project_stack}, #{upload_time}, #{board_type})	
+	</insert>
+	
+</mapper>
