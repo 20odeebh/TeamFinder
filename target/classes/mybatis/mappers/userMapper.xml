@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.multi.teamfinder.dao.UserMapper">
+
+	<resultMap type="kr.co.multi.teamfinder.dto.User" id="user_resultMap">
+		<result column="user_index" property="user_index"/>
+		<result column="user_pwd" property="user_pwd"/>
+		<result column="region" property="region"/>
+		<result column="user_image" property="user_image"/>
+		<result column="user_stack" property="user_stack"/>
+		<result column="user_email" property="user_email"/>
+		<result column="user_id" property="user_id"/>	
+	</resultMap>
+	
+	<resultMap type="kr.co.multi.teamfinder.dto.Post" id="post_resultMap">
+		<result column="post_id" property="post_id"/>
+		<result column="title" property="title"/>
+		<result column="user_index" property="user_index"/>
+		<result column="context" property="context"/>
+		<result column="project_period" property="project_period"/>
+		<result column="region" property="region"/>
+		<result column="meeting_method" property="meeting_method"/>
+		<result column="recruiting_number" property="recruiting_number"/>
+		<result column="team_image" property="team_image"/>
+		<result column="project_stack" property="project_stack"/>
+		<result column="upload_time" property="upload_time"/>
+		<result column="board_type" property="board_type"/>
+		
+		<!-- javaType : 조인될 객체의 타입, property 객체에서 사용할 변수명 -->
+		<association javaType="kr.co.multi.teamfinder.dto.User" property="user">
+		
+			<!-- column : DB 칼럼명 / property : 객체 멤버 변수명 -->
+			<!-- id : pk인 변수 지정 / result : pk가 아닌 변수 지정 -->
+			<id column="user_index" property="user_index"/>
+			
+			<result column="user_id" property="user_id"/>
+		</association>
+	</resultMap>
+	
+	<insert id="addUser" parameterType="kr.co.multi.teamfinder.dto.User">
+		insert into users(user_index, user_pwd, region, user_image, user_stack, user_email, user_id) 
+		values(USER_SEQ.NEXTVAL ,#{user_pwd},#{region}, '0', '0', #{user_email}, #{user_id})
+	</insert>
+	
+	<select id="login" resultType="kr.co.multi.teamfinder.dto.User" resultMap="user_resultMap">
+		select user_index, user_pwd, region, user_image, user_stack, user_email, user_id from users where user_id = #{user_id} and user_Pwd = #{user_pwd}
+	</select>
+	
+	<select id="idCheck" resultType="int">
+		select count(*) from users where user_id = #{member_id}
+	</select>
+	
+	<select id="getPostsbyBoardType" parameterType="int" resultMap="post_resultMap">
+		select ROWNUM, b.post_id, b.user_index, b.title,b. region, b.meeting_method, b.project_stack, b.project_period, u.user_id 
+		from users u, board b 
+		where u.user_index = b.user_index
+		and b.board_type = #{board_type}
+		and ROWNUM <![CDATA[<=]]> 3
+		order by b.post_id desc
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.multi.teamfinder.dao.PostMapper">
+	<resultMap type="kr.co.multi.teamfinder.dto.Post" id="post_resultMap">
+		<result column="post_id" property="post_id"/>
+		<result column="title" property="title"/>
+		<result column="user_index" property="user_index"/>
+		<result column="context" property="context"/>
+		<result column="project_period" property="project_period"/>
+		<result column="region" property="region"/>
+		<result column="meeting_method" property="meeting_method"/>
+		<result column="recruiting_number" property="recruiting_number"/>
+		<result column="team_image" property="team_image"/>
+		<result column="project_stack" property="project_stack"/>
+		<result column="upload_time" property="upload_time"/>
+		<result column="board_type" property="board_type"/>
+		
+		<!-- javaType : 조인될 객체의 타입, property 객체에서 사용할 변수명 -->
+		<association javaType="kr.co.multi.teamfinder.dto.User" property="user">
+		
+			<!-- column : DB 칼럼명 / property : 객체 멤버 변수명 -->
+			<!-- id : pk인 변수 지정 / result : pk가 아닌 변수 지정 -->
+			<id column="user_index" property="user_index"/>
+			
+			<result column="user_id" property="user_id"/>
+		</association>
+	</resultMap>
+	
+	<!-- 
+		myBatis, iBatis 는 Oracle을 사용할 때 Nullable Column(null 값이 들어갈 수 있는 컬럼)을 사용하기 위해 다음과 같이
+		값 뒤에 , jdbcType=VARCHAR 처리를 해줘야 한다. -> configuration.xml에 설정해놨음
+	 -->
+	
+	<insert id="addPost" parameterType="kr.co.multi.teamfinder.dto.Post">
+		insert into board values((select to_number(nvl(max(post_id), '0')+1) from board), #{title}, #{user_index}, #{context}, #{project_period}, #{region}, #{meeting_method}, #{recruiting_number}, #{team_image}, #{project_stack}, #{upload_time}, #{board_type})	
+	</insert>
+	
+	<select id="getPosts" resultMap="post_resultMap">
+		select b.post_id, b.user_index, b.title,b. region, b.meeting_method, b.project_stack, b.project_period, u.user_id from users u, board b where u.user_index = b.user_index and b.board_type = 1 order by b.post_id desc
+	</select>
+	
+	<select id="getPost" parameterType="java.lang.String" resultMap="post_resultMap">
+		select b.post_id, b.user_index, b.title,b. region, b.meeting_method, b.project_stack, b.project_period, b.context, u.user_id from users u, board b where u.user_index = b.user_index and b.post_id=to_number(${post_id})
+	</select>
+	
+	
+</mapper>
